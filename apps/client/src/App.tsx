@@ -150,6 +150,11 @@ function getModifierLabel(option: (typeof modifierOptions)[number]) {
   return isMac ? option.macLabel : option.label
 }
 
+function getPathLabel(path: string) {
+  const parts = path.split(/[\\/]/).filter(Boolean)
+  return parts[parts.length - 1] ?? path
+}
+
 function App() {
   const [config, setConfig] = useState<AppConfig | null>(null)
   const [recentFiles, setRecentFiles] = useState<FileItem[]>([])
@@ -430,7 +435,7 @@ function App() {
             config.watchedPaths.map((path) => (
               <div key={path} className="settings-row">
                 <div className="row-label">
-                  <span>{path.split('/').slice(-1)[0] || path}</span>
+                  <span>{getPathLabel(path)}</span>
                   <span className="row-hint row-hint--mono">{path}</span>
                 </div>
                 <div className="row-actions">
