@@ -6,14 +6,15 @@ use std::{
     fs,
     path::{Path, PathBuf},
     process::Command,
-    sync::mpsc,
     sync::Mutex,
     time::SystemTime,
 };
+#[cfg(target_os = "macos")]
+use std::sync::mpsc;
 use tauri::{
     menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Emitter, Manager, RunEvent, State, Window, Wry,
+    AppHandle, Emitter, Manager, State, Window, Wry,
 };
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
@@ -384,14 +385,14 @@ fn format_file_size(size: u64) -> String {
     }
 }
 
-fn copy_paths_to_clipboard(app: &AppHandle<Wry>, paths: &[PathBuf]) -> anyhow::Result<()> {
+fn copy_paths_to_clipboard(_app: &AppHandle<Wry>, paths: &[PathBuf]) -> anyhow::Result<()> {
     if paths.is_empty() {
         return Err(anyhow!("no files available to copy"));
     }
 
     #[cfg(target_os = "macos")]
     {
-        return copy_paths_to_clipboard_macos(app, paths);
+        return copy_paths_to_clipboard_macos(_app, paths);
     }
 
     #[cfg(target_os = "windows")]
@@ -691,7 +692,6 @@ pub fn run() {
         .plugin(
             tauri_plugin_autostart::Builder::new()
                 .arg(AUTOSTART_FLAG)
-                .macos_launcher(tauri_plugin_autostart::MacosLauncher::LaunchAgent)
                 .build(),
         )
         .setup(|app| {
@@ -731,7 +731,8 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app, event| {
-            if let RunEvent::Reopen {
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen {
                 has_visible_windows: false,
                 ..
             } = event
