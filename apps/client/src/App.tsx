@@ -36,6 +36,8 @@ interface FileItem {
   sizeLabel: string
 }
 
+type Language = 'en' | 'zh'
+
 const modifierOptions: Array<{
   value: ShortcutModifier
   label: string
@@ -47,6 +49,67 @@ const modifierOptions: Array<{
 ]
 
 const isMac = navigator.userAgent.includes('Mac')
+const LANGUAGE_STORAGE_KEY = 'sisyphean-client-language'
+
+const copy = {
+  en: {
+    loading: 'Loading...',
+    close: 'Close',
+    language: 'Language',
+    languageHint: 'Choose the interface language',
+    system: 'System',
+    autostart: 'Launch at startup',
+    autostartHintAvailable: 'Start with the system so shortcuts stay available',
+    autostartHintUnavailable:
+      'Disabled in development mode to avoid polluting startup items',
+    shortcuts: 'Shortcuts',
+    shortcutModifiers: 'Modifiers',
+    shortcutModifiersHint: 'Modifier + digits (1-9) trigger copy',
+    active: 'Active',
+    paused: 'Paused',
+    pausedStatus: 'Paused, global shortcuts are not registered',
+    noShortcutsActive: 'No active shortcuts',
+    watchedPaths: 'Watched paths',
+    addDirectory: '+ Add folder',
+    selectDirectory: 'Select folders to watch',
+    noWatchedPaths: 'No watched paths yet',
+    reveal: 'Reveal',
+    remove: 'Remove',
+    latestFiles: 'Latest files',
+    noRecentFiles: 'No files to show yet',
+    copyFile: 'Copy',
+    runtimePausedBanner: 'Monitoring paused. Shortcuts will not trigger for now.',
+    runtimeResumedBanner: 'Monitoring resumed. Shortcuts are active again.',
+  },
+  zh: {
+    loading: '正在加载…',
+    close: '关闭',
+    language: '语言',
+    languageHint: '选择界面显示语言',
+    system: '系统',
+    autostart: '开机启动',
+    autostartHintAvailable: '随系统启动，快捷键始终可用',
+    autostartHintUnavailable: '开发模式下已禁用，避免污染系统启动项',
+    shortcuts: '快捷键',
+    shortcutModifiers: '修饰键',
+    shortcutModifiersHint: '修饰键 + 数字（1-9）触发复制',
+    active: '已生效',
+    paused: '已暂停',
+    pausedStatus: '已暂停，不注册全局快捷键',
+    noShortcutsActive: '无快捷键生效',
+    watchedPaths: '监控路径',
+    addDirectory: '+ 添加目录',
+    selectDirectory: '选择要监控的目录',
+    noWatchedPaths: '尚未添加监控路径',
+    reveal: '定位',
+    remove: '移除',
+    latestFiles: '最新文件',
+    noRecentFiles: '还没有可展示的文件',
+    copyFile: '复制',
+    runtimePausedBanner: '监听已暂停，快捷键暂时不会触发。',
+    runtimeResumedBanner: '监听已恢复，快捷键重新生效。',
+  },
+} as const
 
 function formatShortcut(config: AppConfig, count: number) {
   return [...config.shortcutModifiers, `Digit${count}`].join('+')
@@ -72,9 +135,9 @@ function buildShortcutSet(config: AppConfig) {
   return Array.from({ length: 9 }, (_, index) => formatShortcut(config, index + 1))
 }
 
-function describeShortcutStatus(shortcuts: string[]) {
+function describeShortcutStatus(shortcuts: string[], language: Language) {
   if (shortcuts.length === 0) {
-    return '无快捷键生效'
+    return copy[language].noShortcutsActive
   }
 
   return shortcuts
@@ -95,6 +158,15 @@ function App() {
   const [autostartEnabled, setAutostartEnabled] = useState(false)
   const [autostartAvailable, setAutostartAvailable] = useState(true)
   const [banner, setBanner] = useState<string | null>(null)
+  const [language, setLanguage] = useState<Language>(() => {
+    try {
+      return localStorage.getItem(LANGUAGE_STORAGE_KEY) === 'zh' ? 'zh' : 'en'
+    } catch {
+      return 'en'
+    }
+  })
+
+  const text = copy[language]
 
   const refreshState = useEffectEvent(async () => {
     const nextState = await invoke<AppState>('load_app_state')
@@ -154,12 +226,20 @@ function App() {
   }, [refreshState])
 
   useEffect(() => {
+    try {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, language)
+    } catch {
+      // Ignore storage failures and keep the in-memory language selection.
+    }
+  }, [language])
+
+  useEffect(() => {
     let unsubscribe = () => {}
 
     ;(async () => {
       const unlisten = await listen<boolean>('runtime-pause-changed', (event) => {
         setIsPaused(event.payload)
-        setBanner(event.payload ? '监听已暂停，快捷键暂时不会触发。' : '监听已恢复，快捷键重新生效。')
+        setBanner(event.payload ? copy[language].runtimePausedBanner : copy[language].runtimeResumedBanner)
       })
       unsubscribe = unlisten
     })()
@@ -167,7 +247,7 @@ function App() {
     return () => {
       unsubscribe()
     }
-  }, [])
+  }, [language])
 
   useEffect(() => {
     let unsubscribe = () => {}
@@ -187,15 +267,15 @@ function App() {
   if (isLoading || !config) {
     return (
       <main className="page page--loading">
-        <p className="loading-text">正在加载…</p>
+        <p className="loading-text">{text.loading}</p>
       </main>
     )
   }
 
   const expectedShortcuts = buildShortcutSet(config)
   const shortcutStatus = isPaused
-    ? '已暂停，不注册全局快捷键'
-    : describeShortcutStatus(expectedShortcuts)
+    ? text.pausedStatus
+    : describeShortcutStatus(expectedShortcuts, language)
 
   return (
     <main className="page">
@@ -203,22 +283,45 @@ function App() {
         <div className="banner">
           <span>{banner}</span>
           <button type="button" className="link-button" onClick={() => setBanner(null)}>
-            关闭
+            {text.close}
           </button>
         </div>
       ) : null}
 
       <div className="settings">
-
-        {/* 系统 */}
         <section className="settings-group">
           <div className="settings-row">
             <div className="row-label">
-              <span>开机启动</span>
+              <span>{text.language}</span>
+              <span className="row-hint">{text.languageHint}</span>
+            </div>
+            <div className="modifier-chips">
+              {(['en', 'zh'] as const).map((option) => {
+                const checked = language === option
+
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    className={`modifier-chip ${checked ? 'modifier-chip--on' : ''}`}
+                    onClick={() => setLanguage(option)}
+                  >
+                    {option === 'en' ? 'English' : '中文'}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className="settings-group">
+          <div className="settings-row">
+            <div className="row-label">
+              <span>{text.autostart}</span>
               <span className="row-hint">
                 {autostartAvailable
-                  ? '随系统启动，快捷键始终可用'
-                  : '开发模式下已禁用，避免污染系统启动项'}
+                  ? text.autostartHintAvailable
+                  : text.autostartHintUnavailable}
               </span>
             </div>
             <label className="switch">
@@ -244,12 +347,11 @@ function App() {
           </div>
         </section>
 
-        {/* 快捷键 */}
         <section className="settings-group">
           <div className="settings-row">
             <div className="row-label">
-              <span>修饰键</span>
-              <span className="row-hint">修饰键 + 数字（1–9）触发复制</span>
+              <span>{text.shortcutModifiers}</span>
+              <span className="row-hint">{text.shortcutModifiersHint}</span>
             </div>
             <div className="modifier-chips">
               {modifierOptions.map((option) => {
@@ -283,16 +385,15 @@ function App() {
 
           <div className="settings-row settings-row--static">
             <span className={`run-badge ${isPaused ? 'run-badge--paused' : ''}`}>
-              {isPaused ? '已暂停' : '已生效'}
+              {isPaused ? text.paused : text.active}
             </span>
             <span className="row-hint">{shortcutStatus}</span>
           </div>
         </section>
 
-        {/* 监控路径 */}
         <section className="settings-group">
           <div className="settings-row settings-row--head">
-            <span className="group-title">监控路径</span>
+            <span className="group-title">{text.watchedPaths}</span>
             <button
               type="button"
               className="add-button"
@@ -301,7 +402,7 @@ function App() {
                   const selected = await open({
                     directory: true,
                     multiple: true,
-                    title: '选择要监控的目录',
+                    title: text.selectDirectory,
                   })
 
                   if (!selected) return
@@ -317,13 +418,13 @@ function App() {
                 }
               }}
             >
-              + 添加目录
+              {text.addDirectory}
             </button>
           </div>
 
           {config.watchedPaths.length === 0 ? (
             <div className="settings-row settings-row--empty">
-              <span className="row-hint">尚未添加监控路径</span>
+              <span className="row-hint">{text.noWatchedPaths}</span>
             </div>
           ) : (
             config.watchedPaths.map((path) => (
@@ -338,7 +439,7 @@ function App() {
                     className="link-button"
                     onClick={() => void revealPath(path)}
                   >
-                    定位
+                    {text.reveal}
                   </button>
                   <button
                     type="button"
@@ -350,7 +451,7 @@ function App() {
                       )
                     }}
                   >
-                    移除
+                    {text.remove}
                   </button>
                 </div>
               </div>
@@ -361,12 +462,12 @@ function App() {
 
         <section className="settings-group">
           <div className="settings-row settings-row--head">
-            <span className="group-title">最新文件</span>
+            <span className="group-title">{text.latestFiles}</span>
           </div>
 
           {recentFiles.length === 0 ? (
             <div className="settings-row settings-row--empty">
-              <span className="row-hint">还没有可展示的文件</span>
+              <span className="row-hint">{text.noRecentFiles}</span>
             </div>
           ) : (
             recentFiles.map((file) => (
@@ -381,7 +482,7 @@ function App() {
                     className="link-button"
                     onClick={() => void revealPath(file.path)}
                   >
-                    定位
+                    {text.reveal}
                   </button>
                   <button
                     type="button"
@@ -397,7 +498,7 @@ function App() {
                       }
                     }}
                   >
-                    复制
+                    {text.copyFile}
                   </button>
                 </div>
               </div>
