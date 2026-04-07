@@ -1,52 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
-:root {
-  color-scheme: light dark;
-  --bg: oklch(0.98 0.008 85);
-  --panel: oklch(0.965 0.01 85);
-  --panel-2: oklch(0.948 0.014 82);
-  --fg: oklch(0.23 0.018 72);
-  --muted: oklch(0.49 0.016 76);
-  --muted-strong: oklch(0.34 0.018 74);
-  --line: oklch(0.88 0.012 82);
-  --line-strong: oklch(0.76 0.018 80);
-  --brand: oklch(0.63 0.112 54);
-  --ink: oklch(0.28 0.024 68);
-  --ink-contrast: oklch(0.94 0.008 82);
-  --shadow-soft:
-    0 24px 60px color-mix(in oklch, var(--fg) 10%, transparent),
-    0 4px 18px color-mix(in oklch, var(--fg) 7%, transparent);
-  font-family:
-    'Instrument Sans', 'Segoe UI', sans-serif;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@theme {
+  --color-brand-bg: #F5F0E8;
+  --color-brand-darker: #EDE8DF;
+  --color-brand-dark: #2A1E0E;
+  --color-brand-darkest: #221A0C;
+  --color-brand-accent: #B87640;
+  --color-brand-accent-muted: #F0E5CF;
+  --color-brand-border: #E0D8CB;
+  --color-brand-border-dark: #D0C8BB;
+  --color-brand-text: #1E1508;
+  --color-brand-sub: #6E5E48;
+  --color-brand-muted: #9A8A78;
+  --color-brand-feature-border: #D5CEC4;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: oklch(0.18 0.012 70);
-    --panel: oklch(0.23 0.012 72);
-    --panel-2: oklch(0.26 0.014 72);
-    --fg: oklch(0.93 0.008 82);
-    --muted: oklch(0.74 0.012 78);
-    --muted-strong: oklch(0.84 0.01 80);
-    --line: oklch(0.33 0.014 72);
-    --line-strong: oklch(0.47 0.018 72);
-    --brand: oklch(0.71 0.097 52);
-    --ink: oklch(0.16 0.01 70);
-    --ink-contrast: oklch(0.92 0.008 84);
-    --shadow-soft:
-      0 24px 60px color-mix(in oklch, black 26%, transparent),
-      0 4px 18px color-mix(in oklch, black 22%, transparent);
-  }
-}
-
-@theme inline {
-  --color-background: var(--bg);
-  --color-foreground: var(--fg);
+  --font-display: "Fraunces", serif;
+  --font-body: "DM Sans", sans-serif;
 }
 
 * {
@@ -60,83 +29,46 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklch, var(--brand) 5%, var(--bg)) 0%,
-      var(--bg) 28rem
-    ),
-    var(--bg);
-  color: var(--fg);
-}
-
-::selection {
-  background: color-mix(in oklch, var(--brand) 24%, transparent);
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
+  background: var(--color-brand-bg);
+  color: var(--color-brand-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
   min-height: 100svh;
 }
 
-.balance {
-  text-wrap: balance;
+/* Fluid spacing utilities */
+.px-fluid {
+  padding-left: clamp(1.5rem, 5vw, 4rem);
+  padding-right: clamp(1.5rem, 5vw, 4rem);
 }
 
-.hero-shell {
-  position: relative;
+/* Fluid type utilities */
+.text-hero {
+  font-size: clamp(2.75rem, 6vw, 4.5rem);
 }
 
-.hero-shell::after {
-  content: '';
-  position: absolute;
-  inset: auto 1.5rem -1.5rem;
-  height: 2rem;
-  border-radius: 999px;
-  background: color-mix(in oklch, var(--brand) 12%, transparent);
-  filter: blur(28px);
-  opacity: 0.75;
-  z-index: -1;
+.text-body-lg {
+  font-size: clamp(1rem, 1.5vw, 1.075rem);
 }
 
-.reveal-up {
-  animation: reveal-up 680ms cubic-bezier(0.22, 1, 0.36, 1) both;
+/* Animations */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
 
-.reveal-up:nth-child(2) {
-  animation-delay: 80ms;
+.hero-text {
+  animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.reveal-up:nth-child(3) {
-  animation-delay: 160ms;
-}
-
-.reveal-up:nth-child(4) {
-  animation-delay: 220ms;
-}
-
-@keyframes reveal-up {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 18px, 0);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
+.hero-img {
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  .reveal-up {
-    animation: none;
-  }
+  .hero-text, .hero-img { animation: none; }
 }

@@ -1,299 +1,152 @@
-const proofPoints = [
-  {
-    value: '1 shortcut',
-    label: 'Copy the newest file without opening Downloads.',
-  },
-  {
-    value: 'N files',
-    label: 'Scale from one file to the latest batch when you need more.',
-  },
-  {
-    value: '0 friction',
-    label: 'Stay in flow while Sisyphean handles the folder dance for you.',
-  },
-]
+import { useState } from 'react'
 
-const features = [
-  {
-    title: 'Shortcut-first',
-    body: 'Trigger a system-wide shortcut and send the latest file straight to the clipboard. No detour, no finder window, no drag-and-drop.',
-  },
-  {
-    title: 'Multi-folder aware',
-    body: 'Watch multiple download locations, merge them by recency, and grab the right file even when your browser and apps save to different places.',
-  },
-  {
-    title: 'Quietly resident',
-    body: 'Live in the background, surface clear notifications, and keep the action available every time you download something important.',
-  },
-]
+const GITHUB_URL = 'https://github.com/Hexi1997/Sisyphean'
+const RELEASES_URL = 'https://github.com/Hexi1997/Sisyphean/releases/latest'
 
-const steps = [
-  'Choose one or more folders you care about.',
-  'Hit your global shortcut when the download finishes.',
-  'Paste immediately into chat, email, CMS, Finder, or any target app.',
-]
+type Lang = 'en' | 'zh'
 
-function App() {
+const t = {
+  en: {
+    tagline: 'Copy the Newest. Paste Instantly.',
+    desc: 'One shortcut between download and done. Sisyphean watches your folders and puts the latest file on your clipboard — without opening a file explorer.',
+    shortcutLabel: 'Default shortcut',
+    shortcutSuffix: 'copies your newest file',
+    quote: '"Sisyphean" describes work that is repetitive, tedious, and seemingly endless — the exact frustration of opening a folder just to copy the newest file.',
+    download: '↓ Download',
+    github: 'GitHub',
+    platform: 'Windows · macOS · Linux · Free & Open Source',
+  },
+  zh: {
+    tagline: '复制最新，即刻粘贴。',
+    desc: '一个快捷键，从下载到粘贴。Sisyphean 监控你的文件夹，将最新文件放入剪贴板——无需打开文件管理器。',
+    shortcutLabel: '默认快捷键',
+    shortcutSuffix: '复制最新文件',
+    quote: '"Sisyphean" 取自希腊神话中永无止境的西西弗斯，形容重复繁琐、无尽的任务——正是每次打开文件夹才能复制最新文件的那种挫败感。',
+    download: '↓ 立即下载',
+    github: 'GitHub',
+    platform: 'Windows · macOS · Linux · 免费开源',
+  },
+} as const
+
+function KbdKey({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative isolate overflow-hidden">
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 mx-auto h-64 w-[min(72rem,92vw)] bg-[radial-gradient(circle_at_top,_color-mix(in_oklch,var(--brand)_14%,transparent),transparent_72%)]" />
-
-      <header className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6 sm:px-8 lg:px-12">
-        <a className="inline-flex items-center gap-3 text-sm font-medium tracking-[0.22em] text-[var(--muted-strong)] uppercase" href="#">
-          <span className="flex h-3 w-3 rounded-full bg-[var(--brand)] shadow-[0_0_0_6px_color-mix(in_oklch,var(--brand)_12%,transparent)]" />
-          Sisyphean
-        </a>
-        <nav className="hidden items-center gap-8 text-sm text-[var(--muted)] md:flex">
-          <a className="transition-colors hover:text-[var(--fg)]" href="#product">
-            Product
-          </a>
-          <a className="transition-colors hover:text-[var(--fg)]" href="#flow">
-            Flow
-          </a>
-          <a className="transition-colors hover:text-[var(--fg)]" href="#principles">
-            Principles
-          </a>
-        </nav>
-      </header>
-
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-16 px-6 pb-16 sm:px-8 lg:px-12 lg:gap-24 lg:pb-24">
-        <section className="grid gap-12 border-y border-[var(--line)] py-10 lg:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)] lg:items-end lg:gap-16 lg:py-16">
-          <div className="max-w-3xl">
-            <p className="reveal-up mb-5 text-xs font-semibold tracking-[0.28em] text-[var(--muted-strong)] uppercase">
-              Copy the newest, paste instantly
-            </p>
-            <h1 className="reveal-up balance max-w-4xl text-[clamp(3.2rem,9vw,7.25rem)] leading-[0.93] font-semibold tracking-[-0.05em] text-[var(--fg)] [text-wrap:balance]">
-              One shortcut between download and done.
-            </h1>
-            <p className="reveal-up mt-6 max-w-2xl text-base leading-8 text-[var(--muted)] sm:text-lg">
-              Sisyphean is a lightweight desktop utility for people who constantly
-              move the latest file from Downloads into chats, emails, CMS panels,
-              ticket systems, and project folders. Instead of opening a directory
-              every time, you just press the shortcut and paste.
-            </p>
-
-            <div className="reveal-up mt-8 flex flex-wrap gap-3">
-              <a
-                className="inline-flex items-center justify-center rounded-full bg-[var(--fg)] px-6 py-3 text-sm font-medium text-[var(--bg)] transition-transform duration-200 hover:-translate-y-0.5"
-                href="#flow"
-              >
-                See the flow
-              </a>
-              <a
-                className="inline-flex items-center justify-center rounded-full border border-[var(--line-strong)] px-6 py-3 text-sm font-medium text-[var(--fg)] transition-colors duration-200 hover:border-[var(--fg)]"
-                href="#principles"
-              >
-                Why it feels faster
-              </a>
-            </div>
-          </div>
-
-          <div className="reveal-up relative">
-            <div className="hero-shell overflow-hidden rounded-[2rem] border border-[var(--line-strong)] bg-[var(--panel)] p-4 shadow-[var(--shadow-soft)] sm:p-5">
-              <div className="grid gap-4 sm:grid-cols-[1.18fr_0.82fr]">
-                <div className="rounded-[1.5rem] border border-[var(--line)] bg-[var(--panel-2)] p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-medium tracking-[0.22em] text-[var(--muted)] uppercase">
-                        Latest action
-                      </p>
-                      <h2 className="mt-3 max-w-xs text-2xl leading-tight font-semibold tracking-[-0.04em] text-[var(--fg)]">
-                        Pull the newest file from anywhere you download.
-                      </h2>
-                    </div>
-                    <div className="rounded-full border border-[var(--line)] px-3 py-1 text-xs text-[var(--muted)]">
-                      macOS + Windows
-                    </div>
-                  </div>
-
-                  <div className="mt-8 grid gap-3">
-                    {[
-                      'Downloads / Safari',
-                      'Downloads / Chrome',
-                      'Client Assets / Figma exports',
-                    ].map((folder) => (
-                      <div
-                        key={folder}
-                        className="flex items-center justify-between rounded-2xl border border-[var(--line)] bg-[var(--bg)] px-4 py-3"
-                      >
-                        <span className="text-sm text-[var(--muted-strong)]">
-                          {folder}
-                        </span>
-                        <span className="text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
-                          watched
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex flex-col justify-between gap-4">
-                  <div className="rounded-[1.5rem] border border-[var(--line)] bg-[var(--bg)] p-5">
-                    <p className="text-xs font-medium tracking-[0.22em] text-[var(--muted)] uppercase">
-                      Trigger
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {['Option', 'C', '1'].map((keycap) => (
-                        <span
-                          key={keycap}
-                          className="rounded-2xl border border-[var(--line-strong)] bg-[var(--panel)] px-3 py-2 text-sm font-medium text-[var(--fg)] shadow-[inset_0_-2px_0_color-mix(in_oklch,var(--fg)_10%,transparent)]"
-                        >
-                          {keycap}
-                        </span>
-                      ))}
-                    </div>
-                    <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                      Copy the newest file instantly, or scale the number for the
-                      latest batch.
-                    </p>
-                  </div>
-
-                  <div className="rounded-[1.5rem] border border-[var(--line)] bg-[var(--ink)] p-5 text-[var(--ink-contrast)]">
-                    <p className="text-xs font-medium tracking-[0.22em] uppercase text-[color-mix(in_oklch,var(--ink-contrast)_70%,transparent)]">
-                      What users actually want
-                    </p>
-                    <p className="mt-4 text-xl leading-tight font-medium tracking-[-0.03em]">
-                      The file they just downloaded, already on the clipboard.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section
-          id="principles"
-          className="grid gap-6 lg:grid-cols-[0.85fr_minmax(0,1.15fr)]"
-        >
-          <div className="max-w-xl">
-            <p className="text-xs font-semibold tracking-[0.24em] text-[var(--muted-strong)] uppercase">
-              Proof, not fluff
-            </p>
-            <h2 className="mt-4 text-4xl leading-tight font-semibold tracking-[-0.04em] text-[var(--fg)] sm:text-5xl">
-              Built for repetitive file work that should never feel repetitive.
-            </h2>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            {proofPoints.map((item) => (
-              <article
-                key={item.value}
-                className="rounded-[1.75rem] border border-[var(--line)] bg-[var(--panel)] p-5"
-              >
-                <p className="text-3xl leading-none font-semibold tracking-[-0.05em] text-[var(--fg)]">
-                  {item.value}
-                </p>
-                <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                  {item.label}
-                </p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section
-          id="product"
-          className="grid gap-12 border-y border-[var(--line)] py-10 lg:grid-cols-[0.8fr_minmax(0,1.2fr)] lg:py-14"
-        >
-          <div>
-            <p className="text-xs font-semibold tracking-[0.24em] text-[var(--muted-strong)] uppercase">
-              Core product
-            </p>
-            <h2 className="mt-4 max-w-lg text-4xl leading-tight font-semibold tracking-[-0.04em] text-[var(--fg)]">
-              Designed like a background utility, explained like a sharp tool.
-            </h2>
-          </div>
-
-          <div className="grid gap-8">
-            {features.map((feature, index) => (
-              <article
-                key={feature.title}
-                className="grid gap-4 border-b border-[var(--line)] pb-8 last:border-b-0 last:pb-0 md:grid-cols-[7rem_minmax(0,1fr)]"
-              >
-                <p className="text-sm tracking-[0.18em] text-[var(--muted)] uppercase">
-                  0{index + 1}
-                </p>
-                <div>
-                  <h3 className="text-2xl font-semibold tracking-[-0.03em] text-[var(--fg)]">
-                    {feature.title}
-                  </h3>
-                  <p className="mt-3 max-w-2xl text-base leading-8 text-[var(--muted)]">
-                    {feature.body}
-                  </p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section
-          id="flow"
-          className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
-        >
-          <div className="rounded-[2rem] border border-[var(--line-strong)] bg-[var(--panel)] p-6 shadow-[var(--shadow-soft)] sm:p-8">
-            <p className="text-xs font-semibold tracking-[0.24em] text-[var(--muted-strong)] uppercase">
-              Flow
-            </p>
-            <h2 className="mt-4 text-4xl leading-tight font-semibold tracking-[-0.04em] text-[var(--fg)]">
-              Three beats. No folder hopping.
-            </h2>
-
-            <div className="mt-8 grid gap-4">
-              {steps.map((step, index) => (
-                <div
-                  key={step}
-                  className="grid gap-3 rounded-[1.5rem] border border-[var(--line)] bg-[var(--bg)] p-4 sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:items-start"
-                >
-                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--line-strong)] text-sm font-medium text-[var(--fg)]">
-                    0{index + 1}
-                  </div>
-                  <p className="text-sm leading-7 text-[var(--muted-strong)]">
-                    {step}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid gap-4 self-end sm:grid-cols-2">
-            <article className="rounded-[1.75rem] border border-[var(--line)] bg-[var(--bg)] p-6">
-              <p className="text-xs font-semibold tracking-[0.22em] text-[var(--muted)] uppercase">
-                Privacy
-              </p>
-              <p className="mt-4 text-2xl leading-tight font-semibold tracking-[-0.03em] text-[var(--fg)]">
-                No cloud ritual just to move a file.
-              </p>
-              <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                Sisyphean is about removing a local, repeated annoyance without
-                adding online complexity.
-              </p>
-            </article>
-
-            <article className="rounded-[1.75rem] border border-[var(--line)] bg-[var(--panel)] p-6">
-              <p className="text-xs font-semibold tracking-[0.22em] text-[var(--muted)] uppercase">
-                Feedback
-              </p>
-              <p className="mt-4 text-2xl leading-tight font-semibold tracking-[-0.03em] text-[var(--fg)]">
-                Clear system notifications, not noisy dashboards.
-              </p>
-            </article>
-
-            <article className="rounded-[1.75rem] border border-[var(--line)] bg-[var(--panel)] p-6 sm:col-span-2">
-              <p className="text-xs font-semibold tracking-[0.22em] text-[var(--muted)] uppercase">
-                Positioning
-              </p>
-              <p className="mt-4 max-w-2xl text-2xl leading-tight font-semibold tracking-[-0.03em] text-[var(--fg)]">
-                A small utility with a sharp promise: less window-switching, less
-                friction, more flow.
-              </p>
-            </article>
-          </div>
-        </section>
-      </main>
-    </div>
+    <kbd
+      className="inline-flex items-center justify-center px-2 py-0.5 bg-brand-bg border border-brand-border rounded-[5px] font-[system-ui] text-[0.8em] text-brand-sub leading-relaxed font-medium"
+      style={{ borderBottom: '2px solid #C8C0B4' }}
+    >
+      {children}
+    </kbd>
   )
 }
 
-export default App
+function GitHubIcon() {
+  return (
+    <svg width={15} height={15} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+    </svg>
+  )
+}
+
+export default function App() {
+  const [lang, setLang] = useState<Lang>('en')
+  const copy = t[lang]
+
+  return (
+    <div className="min-h-svh bg-brand-bg flex flex-col">
+
+      {/* top bar */}
+      <div className="flex justify-between items-center px-fluid py-5 shrink-0">
+        <span className="font-display text-[0.95rem] font-bold tracking-[-0.01em] text-brand-text opacity-50">
+          Sisyphean
+        </span>
+        <div className="flex border border-brand-border rounded-lg overflow-hidden text-[0.78rem]">
+          {(['en', 'zh'] as const).map((l) => (
+            <button
+              key={l}
+              onClick={() => setLang(l)}
+              className={`px-3 py-1 font-medium transition-colors cursor-pointer ${
+                lang === l
+                  ? 'bg-brand-accent-muted text-brand-accent'
+                  : 'text-brand-sub hover:bg-brand-darker'
+              }`}
+            >
+              {l === 'en' ? 'EN' : '中文'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* main content — stacks vertically on mobile, side-by-side on desktop */}
+      <div className="flex-1 flex flex-col lg:flex-row lg:items-center px-fluid max-w-[1160px] mx-auto w-full gap-10 lg:gap-[clamp(3rem,6vw,7rem)] pt-8 pb-12 lg:py-10">
+
+        {/* text block */}
+        <div className="flex-1 min-w-0 hero-text">
+          <h1 className="font-display text-hero font-bold tracking-[-0.04em] text-brand-text leading-[1.05] m-0 mb-5">
+            Sisyphean
+          </h1>
+
+          <p className="text-body-lg leading-[1.75] text-brand-sub m-0 mb-7 max-w-[460px]">
+            {copy.tagline} {copy.desc}
+          </p>
+
+          {/* shortcut hint */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#FEFCF8] border border-brand-border rounded-lg text-[0.8rem] text-brand-sub mb-7 flex-wrap">
+            <span>{copy.shortcutLabel}:</span>
+            <KbdKey>⌥ / Alt</KbdKey>
+            <span className="text-brand-muted">+</span>
+            <KbdKey>1–9</KbdKey>
+            <span className="text-brand-muted">{copy.shortcutSuffix}</span>
+          </div>
+
+          {/* naming story */}
+          <div className="border-l-2 border-brand-border-dark pl-5 mb-7 max-w-[460px]">
+            <p className="text-[0.875rem] leading-[1.75] text-brand-muted m-0 italic">
+              {copy.quote}
+            </p>
+          </div>
+
+          {/* cta */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <a
+              href={RELEASES_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-[10px] bg-brand-accent text-[#FEFCF8] rounded-[9px] text-[0.9rem] font-semibold no-underline transition-[opacity,transform] duration-200 hover:opacity-85 hover:-translate-y-px"
+            >
+              {copy.download}
+            </a>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-[10px] border border-brand-border-dark text-brand-sub rounded-[9px] text-[0.9rem] font-medium no-underline transition-[background,transform] duration-200 hover:bg-brand-darker hover:-translate-y-px"
+            >
+              <GitHubIcon />
+              {copy.github}
+            </a>
+          </div>
+        </div>
+
+        {/* screenshot — below text on mobile, right column on desktop */}
+        <div className="flex lg:flex-[0_0_auto] lg:w-[clamp(300px,38vw,460px)] items-center justify-center hero-img">
+          <img
+            src="/sisyphean-screenshot.png"
+            alt="Sisyphean app screenshot"
+            className="w-full max-w-[360px] lg:max-w-none h-auto rounded-[14px] block"
+            style={{
+              filter:
+                'drop-shadow(0 24px 64px rgba(60,40,10,0.18)) drop-shadow(0 6px 20px rgba(60,40,10,0.10))',
+            }}
+          />
+        </div>
+
+      </div>
+
+      {/* bottom */}
+      <div className="px-fluid py-5 text-[0.75rem] text-brand-muted shrink-0">
+        {copy.platform}
+      </div>
+
+    </div>
+  )
+}
