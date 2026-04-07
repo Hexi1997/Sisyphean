@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "client:dev": "pnpm --dir apps/client tauri dev",
+    "client:build": "pnpm --dir apps/client tauri build",
+    "web:dev": "pnpm --dir apps/web dev",
+    "web:build": "pnpm --dir apps/web build"
   },
   "keywords": [],
   "author": "",

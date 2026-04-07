@@ -1,0 +1,347 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+
+:root {
+  color-scheme: light dark;
+  font-family: 'Manrope', 'SF Pro Text', 'Segoe UI', sans-serif;
+  --bg: oklch(0.968 0.006 88);
+  --surface: oklch(0.997 0.002 88);
+  --line: oklch(0.88 0.01 85);
+  --line-strong: oklch(0.78 0.018 80);
+  --fg: oklch(0.22 0.018 75);
+  --muted: oklch(0.52 0.014 78);
+  --brand: oklch(0.63 0.13 58);
+  --brand-soft: oklch(0.94 0.032 68);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 14px;
+  line-height: 1.5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: oklch(0.19 0.01 72);
+    --surface: oklch(0.235 0.012 74);
+    --line: oklch(0.32 0.014 72);
+    --line-strong: oklch(0.46 0.022 70);
+    --fg: oklch(0.93 0.007 84);
+    --muted: oklch(0.66 0.012 80);
+    --brand: oklch(0.72 0.102 60);
+    --brand-soft: oklch(0.3 0.03 70);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 360px;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* ─── Page ─────────────────────────────────────────────── */
+
+.page {
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
+  min-height: 0;
+  max-height: 100dvh;
+  padding: 1.25rem 1.5rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.page--loading {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.loading-text {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* ─── Banner ────────────────────────────────────────────── */
+
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0.875rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in oklch, var(--brand) 28%, var(--line));
+  background: color-mix(in oklch, var(--brand) 7%, var(--surface));
+  font-size: 0.8rem;
+}
+
+/* ─── Settings ──────────────────────────────────────────── */
+
+.settings {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.settings-group {
+  border: 1px solid var(--line);
+  border-radius: 0.625rem;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.875rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-row--head {
+  padding-block: 0.5rem;
+  background: color-mix(in oklch, var(--bg) 60%, var(--surface));
+}
+
+.settings-row--static {
+  background: color-mix(in oklch, var(--bg) 40%, var(--surface));
+}
+
+.settings-row--empty {
+  justify-content: flex-start;
+  background: color-mix(in oklch, var(--bg) 40%, var(--surface));
+}
+
+/* ─── Row internals ─────────────────────────────────────── */
+
+.group-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.row-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.row-label > span:first-child {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.row-hint {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.row-hint--mono {
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 22ch;
+}
+
+.row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* ─── Toggle switch ─────────────────────────────────────── */
+
+.switch {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-track {
+  display: block;
+  width: 2.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: var(--line-strong);
+  transition: background 160ms ease;
+}
+
+.switch-track::after {
+  content: '';
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 999px;
+  background: white;
+  transition: transform 160ms ease;
+}
+
+.switch input:checked ~ .switch-track {
+  background: var(--brand);
+}
+
+.switch input:checked ~ .switch-track::after {
+  transform: translateX(1rem);
+}
+
+.switch input:disabled ~ .switch-track {
+  background: color-mix(in oklch, var(--line-strong) 70%, var(--surface));
+}
+
+.switch input:disabled ~ .switch-track::after {
+  background: color-mix(in oklch, white 84%, var(--surface));
+}
+
+.switch:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ─── Modifier chips ────────────────────────────────────── */
+
+.modifier-chips {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.modifier-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.65rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    color 140ms ease;
+  user-select: none;
+}
+
+.modifier-chip input {
+  display: none;
+}
+
+.modifier-chip--on {
+  border-color: color-mix(in oklch, var(--brand) 50%, var(--line-strong));
+  background: var(--brand-soft);
+  color: var(--fg);
+}
+
+/* ─── Badges ────────────────────────────────────────────── */
+
+.run-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: color-mix(in oklch, var(--brand) 14%, transparent);
+  color: var(--fg);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.run-badge--paused {
+  background: color-mix(in oklch, var(--muted) 16%, transparent);
+  color: var(--muted);
+}
+
+/* ─── Buttons ───────────────────────────────────────────── */
+
+.add-button {
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease;
+}
+
+.add-button:hover {
+  background: color-mix(in oklch, var(--brand) 8%, var(--surface));
+  border-color: color-mix(in oklch, var(--brand) 35%, var(--line-strong));
+}
+
+.link-button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 140ms ease;
+}
+
+.link-button:hover {
+  color: var(--fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
