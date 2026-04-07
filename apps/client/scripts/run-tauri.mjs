@@ -6,9 +6,22 @@ import path from "node:path";
 const args = process.argv.slice(2);
 const projectRoot = path.resolve(import.meta.dirname, "..");
 
+function resolveExecutable(command) {
+  if (
+    process.platform === "win32" &&
+    !path.extname(command) &&
+    !command.includes(path.sep) &&
+    !command.includes("/")
+  ) {
+    return `${command}.cmd`;
+  }
+
+  return command;
+}
+
 function run(command, commandArgs, options = {}) {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, commandArgs, {
+    const child = spawn(resolveExecutable(command), commandArgs, {
       cwd: projectRoot,
       stdio: options.capture ? ["ignore", "pipe", "pipe"] : "inherit",
       env: process.env,
