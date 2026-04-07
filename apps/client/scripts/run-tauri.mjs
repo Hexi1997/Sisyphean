@@ -21,10 +21,12 @@ function resolveExecutable(command) {
 
 function run(command, commandArgs, options = {}) {
   return new Promise((resolve, reject) => {
-    const child = spawn(resolveExecutable(command), commandArgs, {
+    const executable = resolveExecutable(command);
+    const child = spawn(executable, commandArgs, {
       cwd: projectRoot,
       stdio: options.capture ? ["ignore", "pipe", "pipe"] : "inherit",
       env: process.env,
+      shell: process.platform === "win32" && executable.endsWith(".cmd"),
     });
 
     let stdout = "";
@@ -143,6 +145,11 @@ function normalizeBuildArgs(commandArgs) {
 }
 
 function shouldPatchDmgs(commandArgs) {
+  // Keep CI release artifacts untouched so signing/notarization stays valid.
+  if (process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true") {
+    return false;
+  }
+
   const bundlesArg = getBundlesArg(commandArgs);
 
   if (!bundlesArg) {
