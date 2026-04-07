@@ -2,6 +2,8 @@
 
 Slogan: Copy the Newest, Paste Instantly.
 
+Github: https://github.com/Hexi1997/Sisyphean
+
 ---
 
 ## 1. 项目名称与命名说明
