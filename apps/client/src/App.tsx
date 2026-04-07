@@ -6,6 +6,7 @@ import {
   enable as enableAutostart,
   isEnabled as isAutostartEnabled,
 } from '@tauri-apps/plugin-autostart'
+import packageJson from '../package.json'
 import { useEffect, useEffectEvent, useState } from 'react'
 import './App.css'
 
@@ -50,6 +51,8 @@ const modifierOptions: Array<{
 
 const isMac = navigator.userAgent.includes('Mac')
 const LANGUAGE_STORAGE_KEY = 'sisyphean-client-language'
+const APP_VERSION = packageJson.version
+const APP_SLOGAN = 'Copy the Newest, Paste Instantly.'
 
 const copy = {
   en: {
@@ -293,6 +296,10 @@ function App() {
         </div>
       ) : null}
 
+      <header className="page-header">
+        <h1 className="page-slogan">{APP_SLOGAN}</h1>
+      </header>
+
       <div className="settings">
         <section className="settings-group">
           <div className="settings-row">
@@ -512,6 +519,10 @@ function App() {
         </section>
 
       </div>
+
+      <footer className="page-footer">
+        <span className="page-version">Version {APP_VERSION}</span>
+      </footer>
     </main>
   )
 }

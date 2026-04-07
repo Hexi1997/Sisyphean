@@ -1,10 +1,22 @@
 import { spawn } from "node:child_process";
-import { access, mkdir, mkdtemp, readdir, rename, rm } from "node:fs/promises";
+import {
+  access,
+  mkdir,
+  mkdtemp,
+  readFile,
+  readdir,
+  rename,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
 const args = process.argv.slice(2);
 const projectRoot = path.resolve(import.meta.dirname, "..");
+const packageJsonPath = path.join(projectRoot, "package.json");
+const cargoTomlPath = path.join(projectRoot, "src-tauri", "Cargo.toml");
+const tauriConfigPath = path.join(projectRoot, "src-tauri", "tauri.conf.json");
 
 function resolveExecutable(command) {
   if (
@@ -66,6 +78,60 @@ async function exists(filePath) {
     return true;
   } catch {
     return false;
+  }
+}
+
+async function getPackageVersion() {
+  const packageJson = JSON.parse(await readFile(packageJsonPath, "utf8"));
+
+  if (typeof packageJson.version !== "string" || packageJson.version.length === 0) {
+    throw new Error("apps/client/package.json is missing a valid version");
+  }
+
+  return packageJson.version;
+}
+
+async function syncCargoVersion(version) {
+  const cargoToml = await readFile(cargoTomlPath, "utf8");
+  const nextCargoToml = cargoToml.replace(
+    /^version = ".*"$/m,
+    `version = "${version}"`,
+  );
+
+  if (nextCargoToml === cargoToml) {
+    return false;
+  }
+
+  await writeFile(cargoTomlPath, nextCargoToml);
+  return true;
+}
+
+async function syncTauriVersion(version) {
+  const tauriConfig = JSON.parse(await readFile(tauriConfigPath, "utf8"));
+
+  if (tauriConfig.version === version) {
+    return false;
+  }
+
+  tauriConfig.version = version;
+  await writeFile(tauriConfigPath, `${JSON.stringify(tauriConfig, null, 2)}\n`);
+  return true;
+}
+
+async function syncAppVersions() {
+  const version = await getPackageVersion();
+  const changedFiles = [];
+
+  if (await syncCargoVersion(version)) {
+    changedFiles.push("src-tauri/Cargo.toml");
+  }
+
+  if (await syncTauriVersion(version)) {
+    changedFiles.push("src-tauri/tauri.conf.json");
+  }
+
+  if (changedFiles.length > 0) {
+    console.log(`Synced app version ${version} -> ${changedFiles.join(", ")}`);
   }
 }
 
@@ -236,6 +302,8 @@ async function main() {
     await patchAllDmgs(args.slice(1));
     return;
   }
+
+  await syncAppVersions();
 
   const tauriArgs = normalizeBuildArgs(args.length > 0 ? args : ["--help"]);
   const isBuild = tauriArgs.includes("build");

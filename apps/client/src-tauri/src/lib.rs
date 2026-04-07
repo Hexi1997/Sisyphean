@@ -297,6 +297,15 @@ fn default_watched_paths() -> Vec<String> {
         .unwrap_or_default()
 }
 
+fn should_ignore_recent_file(path: &Path) -> bool {
+    let Some(name) = path.file_name().and_then(|value| value.to_str()) else {
+        return false;
+    };
+
+    // Only skip OS-generated clutter, not meaningful dotfiles like .env.
+    matches!(name, ".DS_Store" | ".localized" | "Icon\r") || name.starts_with("._")
+}
+
 fn collect_recent_files(config: &AppConfig, limit: usize) -> anyhow::Result<Vec<FileItem>> {
     let mut files = Vec::new();
 
@@ -317,11 +326,7 @@ fn collect_recent_files(config: &AppConfig, limit: usize) -> anyhow::Result<Vec<
                 continue;
             }
 
-            if entry_path
-                .file_name()
-                .and_then(|value| value.to_str())
-                .is_some_and(|name| name == ".DS_Store")
-            {
+            if should_ignore_recent_file(&entry_path) {
                 continue;
             }
 

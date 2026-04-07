@@ -69,6 +69,9 @@ button {
   max-height: 100dvh;
   padding: 1.25rem 1.5rem;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
   overflow-y: auto;
 }
 
@@ -83,6 +86,42 @@ button {
   margin: 0;
   color: var(--muted);
   font-size: 0.875rem;
+}
+
+.page-header {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.15rem 0 0.25rem;
+}
+
+.page-eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.page-slogan {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.25;
+  font-weight: 700;
+  color: var(--fg);
+  text-align: center;
+}
+
+.page-footer {
+  margin-top: auto;
+  padding-top: 0.15rem;
+  text-align: center;
+}
+
+.page-version {
+  font-size: 0.74rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
 }
 
 /* ─── Banner ────────────────────────────────────────────── */
